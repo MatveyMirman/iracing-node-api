@@ -30,6 +30,9 @@
   "repository": {
     "url": "https://github.com/iracing-telemetry-group/iracing-js-api"
   },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
+  },
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/crypto-js": "^4.2.2",
