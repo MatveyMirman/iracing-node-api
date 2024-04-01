@@ -1,0 +1,41 @@
+{
+  "success": true,
+  "session_info": {
+    "subsession_id": 67628140,
+    "session_id": 233213812,
+    "simsession_number": 0,
+    "simsession_type": 3,
+    "simsession_name": "PRACTICE",
+    "num_laps_for_qual_average": 2,
+    "num_laps_for_solo_average": 4,
+    "event_type": 2,
+    "event_type_name": "Practice",
+    "private_session_id": -1,
+    "season_name": "GT3 Fanatec Challenge - Fixed - 2024 Season 2 - Fixed",
+    "season_short_name": "2024 Season 2 Fixed",
+    "series_name": "GT3 Fanatec Challenge - Fixed",
+    "series_short_name": "GT3 Fanatec Challenge - Fixed",
+    "start_time": "2024-03-26T00:51:08Z",
+    "track": {
+      "track_id": 434,
+      "track_name": "Watkins Glen International",
+      "config_name": "Boot"
+    }
+  },
+  "best_lap_num": 11,
+  "best_lap_time": 1031404,
+  "best_nlaps_num": -1,
+  "best_nlaps_time": -1,
+  "best_qual_lap_num": -1,
+  "best_qual_lap_time": -1,
+  "best_qual_lap_at": null,
+  "chunk_info": {
+    "chunk_size": 500,
+    "num_chunks": 1,
+    "rows": 362,
+    "base_download_url": "https://members-assets.iracing.com/public/lapdata/subsession/67628140/0/chart/",
+    "chunk_file_names": [
+      "9747e632172f925fb12f5ad40157a9467a5a10f22275d661c91d4497501f8dbe.json"
+    ]
+  }
+}

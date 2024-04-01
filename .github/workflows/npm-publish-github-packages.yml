@@ -1,0 +1,52 @@
+name: Node.js Package
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: 'main'
+      - name: 'Install Pnpm'
+        uses: pnpm/action-setup@v2
+        with:
+          version: '8.14'
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20.x
+      - name: Install Dependencies
+        run: |
+          pnpm install
+      - run: pnpm test
+
+  publish-gpr:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: 'main'
+      - name: 'Install Pnpm'
+        uses: pnpm/action-setup@v2
+        with:
+          version: '8.14'
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20.x
+          registry-url: 'https://registry.npmjs.org'
+      - name: Install Dependencies
+        run: |
+          pnpm install
+      - name: Build Source
+        run: |
+          pnpm build
+      - run: pnpm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}

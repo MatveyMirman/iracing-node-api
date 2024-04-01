@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "moduleResolution": "node",
+    "skipLibCheck": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "esModuleInterop": true
+  },
+  "include": ["env.d.ts", "src", "src/tests"],
+  "exclude": ["node_modules", "./src/server.ts", "src/tests/**/*.ts", "dist"]
+}
