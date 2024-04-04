@@ -13,7 +13,9 @@ describe('Iracing Api Client', () => {
   });
   describe('Initialization', () => {
     it('should login user when initialized', async () => {
-      const client = new IracingClient('email', 'password');
+      const client = new IracingClient('email', 'password', {
+        shouldUseInterval: false
+      });
       await client.signIn();
       expect(client.authenticated).toBe(true);
     });
@@ -32,7 +34,7 @@ describe('Iracing Api Client', () => {
       await getResource.mockResolvedValue(require(filePath));
     };
     beforeAll(() => {
-      client = new IracingClient('test', 'test');
+      client = new IracingClient('test', 'test', { shouldUseInterval: false });
     });
 
     beforeEach(async () => {
