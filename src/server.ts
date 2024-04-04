@@ -10,7 +10,8 @@ app.use(morgan('dev'));
 app.use(cors());
 const client = new IracingClient(
   process.env.EMAIL ?? '',
-  process.env.PASSWORD ?? ''
+  process.env.PASSWORD ?? '',
+  { shouldUseInterval: true }
 );
 
 app.get('/cars/assets', async (req, res) => {

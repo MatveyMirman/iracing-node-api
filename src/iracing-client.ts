@@ -15,13 +15,23 @@ import {
   TrackData
 } from './types';
 
+type InitOptions = {
+  shouldUseInterval: boolean;
+};
+
 class IracingClient {
   public authenticated: boolean;
   private apiClient: AxiosInstance;
   private email: string;
   private password: string;
+  private interval: NodeJS.Timer | null;
+  private options: InitOptions;
 
-  constructor(email: string, password: string) {
+  constructor(
+    email: string,
+    password: string,
+    options: InitOptions = { shouldUseInterval: true }
+  ) {
     if (!email || !password) {
       throw new Error(
         `Iracing Api: Unable to initialze client. Missing email or password`
@@ -29,6 +39,7 @@ class IracingClient {
     }
     this.email = email;
     this.password = password;
+    this.options = options;
     this.authenticated = false;
 
     this.apiClient = wrapper(
@@ -38,6 +49,7 @@ class IracingClient {
         baseURL: 'https://members-ng.iracing.com'
       })
     );
+    this.interval = null;
     this.handleError();
   }
 
@@ -46,17 +58,21 @@ class IracingClient {
       async (config) => {
         if (config.status === StatusCodes.UNAUTHORIZED) {
           this.authenticated = false;
+          this.signIn();
         }
         return config;
       },
       (error) => {
-        console.log(error);
+        if (error.status === StatusCodes.UNAUTHORIZED) {
+          this.authenticated = false;
+          this.signIn();
+        }
+        console.error(error);
       }
     );
   }
 
   private encodeCredentials(email: string, password: string): string {
-    // const hash = cryptojs.
     const hash = SHA256(password + email.toLowerCase());
 
     return enc.Base64.stringify(hash);
@@ -73,6 +89,12 @@ class IracingClient {
 
         if (res.data.authcode) {
           this.authenticated = true;
+
+          this.options.shouldUseInterval &&
+            (this.interval = setInterval(() => {
+              console.log('Re-authenticating');
+              this.signIn();
+            }, 3200 * 1000));
         }
       } catch (error) {
         const requestError = error as AxiosError;
@@ -87,8 +109,12 @@ class IracingClient {
     if (!resourceLink) {
       throw new Error('Missing resource url');
     }
-    const res = await this.apiClient.get<T>(resourceLink);
-    return res.data as T;
+    try {
+      const res = await this.apiClient.get<T>(resourceLink);
+      return res.data as T;
+    } catch (error) {
+      throw error;
+    }
   }
 
   public async getCarAssets(): Promise<CarAssetResponse> {
@@ -106,14 +132,14 @@ class IracingClient {
   public async getTrackData(): Promise<TrackData[]> {
     await this.signIn();
     const res = await this.apiClient.get<SignedUrl>('/data/track/get');
-    const trackData = await this.getResource<TrackData[]>(res.data.link);
+    const trackData = await this.getResource<TrackData[]>(res.data?.link);
     return trackData;
   }
 
   public async getTrackAssets(): Promise<TrackAssetResponse> {
     await this.signIn();
     const res = await this.apiClient.get<SignedUrl>('/data/track/assets');
-    const data = await this.getResource<TrackAssetResponse>(res.data.link);
+    const data = await this.getResource<TrackAssetResponse>(res.data?.link);
 
     return data;
   }
@@ -131,7 +157,7 @@ class IracingClient {
       `/data/results/get?subsession_id=${subsessionId}`
     );
 
-    const results = await this.getResource<SessionResult>(res.data.link);
+    const results = await this.getResource<SessionResult>(res.data?.link);
     return results;
   }
 
@@ -156,7 +182,7 @@ class IracingClient {
     const res = await this.apiClient.get<SignedUrl>(
       `/data/results/lap_chart_data?subsession_id=${subsessionId}&simsession_number=${sessionNumber}`
     );
-    const signedData = await this.getResource<LapDataResponse>(res.data.link);
+    const signedData = await this.getResource<LapDataResponse>(res.data?.link);
 
     return signedData;
   }
