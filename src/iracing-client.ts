@@ -181,7 +181,8 @@ class IracingClient {
 
   public async getMemberStatsHistory(
     category: 'road' | 'oval' | 'dirt-oval' | 'dirt',
-    chart_type: 'iRating' | 'tt-rating' | 'sr'
+    chart_type: 'iRating' | 'tt-rating' | 'sr',
+    memberId: number
   ): Promise<MemberStatHistory> {
     await this.signIn();
     const types = {
@@ -197,7 +198,7 @@ class IracingClient {
     };
 
     const res = await this.apiClient.get<SignedUrl>(
-      `/data/member/chart_data?category_id=${categories[category]}&chart_type=${types[chart_type]}`
+      `/data/member/chart_data?category_id=${categories[category]}&chart_type=${types[chart_type]}&cust_id=${memberId}`
     );
 
     const signedResponse = await this.getResource<MemberStatHistory>(
