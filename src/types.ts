@@ -489,3 +489,43 @@ export type TrackData = {
   track_name: string;
   track_types: { track_type: string }[];
 };
+
+export interface MemberStatHistory {
+  blackout: boolean;
+  category_id: number;
+  chart_type: number;
+  data: MemberStats[];
+  success: boolean;
+  cust_id: number;
+}
+
+export interface MemberStats {
+  when: string;
+  value: number;
+}
+
+export interface MemberResponse {
+  success: boolean;
+  cust_ids: number[];
+  members: Member[];
+}
+
+export interface Member {
+  cust_id: number;
+  display_name: string;
+  helmet: Helmet;
+  last_login: string;
+  member_since: string;
+  club_id: number;
+  club_name: string;
+  ai: boolean;
+}
+
+export interface Helmet {
+  pattern: number;
+  color1: string;
+  color2: string;
+  color3: string;
+  face_type: number;
+  helmet_type: number;
+}

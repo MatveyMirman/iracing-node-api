@@ -9,6 +9,9 @@ import {
   CarDataResponse,
   EventLogResponse,
   LapDataResponse,
+  Member,
+  MemberResponse,
+  MemberStatHistory,
   SessionResult,
   SignedUrl,
   TrackAssetResponse,
@@ -174,6 +177,50 @@ class IracingClient {
     const signedData = await this.getResource<LapDataResponse>(res.data?.link);
 
     return signedData;
+  }
+
+  public async getMemberStatsHistory(
+    category: 'road' | 'oval' | 'dirt-oval' | 'dirt',
+    chart_type: 'iRating' | 'tt-rating' | 'sr'
+  ): Promise<MemberStatHistory> {
+    await this.signIn();
+    const types = {
+      iRating: 1,
+      'tt-rating': 2,
+      sr: 3
+    };
+    const categories = {
+      oval: 1,
+      road: 2,
+      'dirt-oval': 3,
+      dirt: 4
+    };
+
+    const res = await this.apiClient.get<SignedUrl>(
+      `/data/member/chart_data?category_id=${categories[category]}&chart_type=${types[chart_type]}`
+    );
+
+    const signedResponse = await this.getResource<MemberStatHistory>(
+      res.data?.link
+    );
+
+    return signedResponse;
+  }
+
+  public async getMember(memberId: number): Promise<Member | null> {
+    await this.signIn();
+    const res = await this.apiClient.get<SignedUrl>(
+      `data/member/get?cust_ids=${memberId}`
+    );
+
+    const signedResponse = await this.getResource<MemberResponse>(
+      res.data?.link
+    );
+
+    return (
+      signedResponse.members.find((member) => member.cust_id === memberId) ??
+      null
+    );
   }
 }
 
