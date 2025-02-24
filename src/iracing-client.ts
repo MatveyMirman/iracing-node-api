@@ -3,6 +3,7 @@ import { wrapper } from 'axios-cookiejar-support';
 import { SHA256, enc } from 'crypto-js';
 import StatusCodes from 'http-status-codes';
 import { CookieJar } from 'tough-cookie';
+import UserAgent from 'user-agents';
 import {
   AuthResponse,
   CarAssetResponse,
@@ -33,6 +34,7 @@ class IracingClient {
   private password: string;
   private interval: NodeJS.Timer | null;
   private options: InitOptions;
+  private agent: UserAgent;
 
   constructor(
     email: string,
@@ -48,12 +50,16 @@ class IracingClient {
     this.password = password;
     this.options = options;
     this.authenticated = false;
+    this.agent = new UserAgent({ platform: 'Win32' });
 
     this.apiClient = wrapper(
       Axios.create({
         jar: new CookieJar(),
         withCredentials: true,
-        baseURL: 'https://members-ng.iracing.com'
+        baseURL: 'https://members-ng.iracing.com',
+        headers: {
+          'User-Agent': this.agent.toString()
+        }
       })
     );
     this.signIn();
@@ -64,14 +70,20 @@ class IracingClient {
   private handleError() {
     this.apiClient.interceptors.response.use(
       async (config) => {
-        if (config.status === StatusCodes.UNAUTHORIZED) {
+        if (
+          config.status === StatusCodes.UNAUTHORIZED ||
+          config.status === StatusCodes.FORBIDDEN
+        ) {
           this.authenticated = false;
           this.signIn();
         }
         return config;
       },
       (error) => {
-        if (error.status === StatusCodes.UNAUTHORIZED) {
+        if (
+          error.status === StatusCodes.UNAUTHORIZED ||
+          error.status === StatusCodes.FORBIDDEN
+        ) {
           this.authenticated = false;
           this.signIn();
         }
@@ -238,7 +250,7 @@ class IracingClient {
 
     return signedData;
   }
-  
+
   public async getLeagueSeasons(leagueId: number): Promise<Season | null> {
     await this.signIn();
     const res = await this.apiClient.get<SignedUrl>(
@@ -249,26 +261,31 @@ class IracingClient {
 
     return signedData;
   }
-  
+
   public async getLeagueRoster(leagueId: number): Promise<LeagueRoster | null> {
     await this.signIn();
     const res = await this.apiClient.get<SignedUrl>(
       `data/league/roster?league_id=${leagueId}`
     );
-  
+
     const signedData = await this.getResource<LeagueRoster>(res.data?.data_url);
-  
+
     return signedData;
   }
 
-  public async getLeagueSeasonSesssions(leagueId: number,seasonId: number): Promise<LeagueSeasonSessionsResponse | null> {
+  public async getLeagueSeasonSesssions(
+    leagueId: number,
+    seasonId: number
+  ): Promise<LeagueSeasonSessionsResponse | null> {
     await this.signIn();
     const res = await this.apiClient.get<SignedUrl>(
       `data/league/season_sessions?league_id=${leagueId}&season_id=${seasonId}`
     );
-  
-    const signedData = await this.getResource<LeagueSeasonSessionsResponse>(res.data?.link);
-  
+
+    const signedData = await this.getResource<LeagueSeasonSessionsResponse>(
+      res.data?.link
+    );
+
     return signedData;
   }
 }
