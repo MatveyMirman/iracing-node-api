@@ -547,14 +547,13 @@ export interface League {
   private_results: boolean;
   is_owner: boolean;
   is_admin: boolean;
-  roster_count: boolean;
+  roster_count: number;
   owner: {
     cust_id: number;
     display_name: string;
     helmet: Helmet;
   };
-  image: string;
-  large_logo: string;
+  image: LeagueImage;
   tags: {
     categorized: [];
     not_categorized: [];
@@ -568,6 +567,10 @@ export interface League {
   roster: LeagueRoster;
 }
 
+export interface LeagueImage {
+  small_logo: string;
+  large_logo: string;
+}
 export interface LeagueRoster {
   cust_id: number;
   display_name: string;
