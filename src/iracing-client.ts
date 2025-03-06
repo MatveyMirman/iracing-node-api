@@ -1,4 +1,4 @@
-import Axios, { AxiosError, AxiosInstance } from 'axios';
+import Axios, { AxiosInstance } from 'axios';
 import { wrapper } from 'axios-cookiejar-support';
 import { SHA256, enc } from 'crypto-js';
 import StatusCodes from 'http-status-codes';
@@ -11,13 +11,12 @@ import {
   EventLogResponse,
   LapDataResponse,
   League,
-  LeagueRoster,
   LeagueRosterResponse,
   LeagueSeasonSessionsResponse,
   Member,
   MemberResponse,
   MemberStatHistory,
-  Season,
+  SeasonsResponse,
   SessionResult,
   SignedUrl,
   TrackAssetResponse,
@@ -252,13 +251,13 @@ class IracingClient {
     return signedData;
   }
 
-  public async getLeagueSeasons(leagueId: number): Promise<Season | null> {
+  public async getLeagueSeasons(leagueId: number): Promise<SeasonsResponse | null> {
     await this.signIn();
     const res = await this.apiClient.get<SignedUrl>(
       `data/league/seasons?league_id=${leagueId}`
     );
 
-    const signedData = await this.getResource<Season>(res.data?.link);
+    const signedData = await this.getResource<SeasonsResponse>(res.data?.link);
 
     return signedData;
   }
