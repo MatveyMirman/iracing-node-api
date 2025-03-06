@@ -611,7 +611,7 @@ export interface Season {
     car_id: number;
     car_name: string;
   }[];
-  drivers_points_car_classes: SeasonCarClass[];
+  driver_points_car_classes: SeasonCarClass[];
   team_points_car_classes: SeasonCarClass[];
   points_system_name: string;
   points_system_desc: string;
