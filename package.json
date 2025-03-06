@@ -25,13 +25,10 @@
     "telemetry",
     "iracing-api"
   ],
-  "author": "Andre Pato",
+  "author": "Matvey Mirman",
   "license": "MIT",
   "repository": {
-    "url": "https://github.com/iracing-telemetry-group/iracing-js-api"
-  },
-  "publishConfig": {
-    "registry": "https://registry.npmjs.org"
+    "url": "https://github.com/MatveyMirman/iracing-node-api"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
