@@ -1,5 +1,5 @@
 {
-  "name": "iracing-node-api",
+  "name": "@matveymirman/iracing-node-api",
   "version": "1.0.8",
   "description": "A nodejs wrapper for Iracing's data api.",
   "main": "dist/cjs/index.js",
@@ -28,7 +28,8 @@
   "author": "Matvey Mirman",
   "license": "MIT",
   "repository": {
-    "url": "https://github.com/MatveyMirman/iracing-node-api"
+    "type": "git",
+    "url": "https://github.com/MatveyMirman/iracing-node-api.git"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
