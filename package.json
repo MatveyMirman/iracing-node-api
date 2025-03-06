@@ -30,6 +30,9 @@
   "repository": {
     "url": "https://github.com/MatveyMirman/iracing-node-api"
   },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/crypto-js": "^4.2.2",
