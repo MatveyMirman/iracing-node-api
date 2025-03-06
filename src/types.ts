@@ -167,6 +167,7 @@ export type DriverResult = {
   opt_laps_complete: number;
   interval: number;
   class_interval: number;
+  country_code: string;
   average_lap: number;
   best_lap_num: number;
   best_lap_time: number;
@@ -582,6 +583,11 @@ export interface LeagueRoster {
   leage_member_since: boolean;
   car_number: string;
   nick_name: string;
+}
+
+export interface LeagueRosterResponse {
+  private_roster: boolean;
+  roster: LeagueRoster[];
 }
 
 export interface SeasonsResponse {

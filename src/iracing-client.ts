@@ -12,6 +12,7 @@ import {
   LapDataResponse,
   League,
   LeagueRoster,
+  LeagueRosterResponse,
   LeagueSeasonSessionsResponse,
   Member,
   MemberResponse,
@@ -262,13 +263,13 @@ class IracingClient {
     return signedData;
   }
 
-  public async getLeagueRoster(leagueId: number): Promise<LeagueRoster | null> {
+  public async getLeagueRoster(leagueId: number): Promise<LeagueRosterResponse | null> {
     await this.signIn();
     const res = await this.apiClient.get<SignedUrl>(
       `data/league/roster?league_id=${leagueId}`
     );
 
-    const signedData = await this.getResource<LeagueRoster>(res.data?.data_url);
+    const signedData = await this.getResource<LeagueRosterResponse>(res.data?.data_url);
 
     return signedData;
   }
