@@ -251,10 +251,10 @@ class IracingClient {
     return signedData;
   }
 
-  public async getLeagueSeasons(leagueId: number): Promise<SeasonsResponse | null> {
+  public async getLeagueSeasons(leagueId: number, getRetired: boolean): Promise<SeasonsResponse | null> {
     await this.signIn();
     const res = await this.apiClient.get<SignedUrl>(
-      `data/league/seasons?league_id=${leagueId}`
+      `data/league/seasons?league_id=${leagueId}&retired=${getRetired || false}`
     );
 
     const signedData = await this.getResource<SeasonsResponse>(res.data?.link);

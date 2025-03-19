@@ -60,7 +60,7 @@ app.get('/leagues/:leagueId', async (req, res) => {
 });
 
 app.get('/leagues/:leagueId/seasons', async (req, res) => {
-  const data = await client.getLeagueSeasons(Number(req.params.leagueId));
+  const data = await client.getLeagueSeasons(Number(req.params.leagueId), false);
   res.send(data);
 });
 app.get('/leagues/:leagueId/seasons/:seasonId/sessions', async (req, res) => {
