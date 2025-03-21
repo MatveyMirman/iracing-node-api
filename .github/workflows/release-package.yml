@@ -29,13 +29,26 @@ jobs:
   publish-gpr:
     needs: build
     runs-on: ubuntu-latest
+    outputs:
+      release_body: ${{ steps.git-cliff.outputs.content }}
     permissions:
       contents: read
       packages: write
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
         with:
           ref: 'main'
+          fetch-depth: 0
+      - name: Generate a changelog
+        uses: orhun/git-cliff-action@v4
+        id: git-cliff
+        with:
+          # config: cliff.toml
+          args: -vv --latest --strip header
+        env:
+          OUTPUT: CHANGELOG.md
+          GITHUB_REPO: ${{ github.repository }}
       - name: 'Install Pnpm'
         uses: pnpm/action-setup@v2
         with:
@@ -50,8 +63,9 @@ jobs:
       - name: Build Source
         run: |
           pnpm build
-      - name: publish NPM package
-        uses: mikeal/merge-release@master
+      - name: Create release
+        uses: softprops/action-gh-release@v2
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ steps.git-cliff.outputs.version }}
+          body: ${{ steps.git-cliff.outputs.content }}
