@@ -47,7 +47,8 @@ jobs:
       - name: Build Source
         run: |
           pnpm build
-      - run: pnpm publish
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-
+      - name: publish NPM package
+        uses: mikeal/merge-release@master
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
