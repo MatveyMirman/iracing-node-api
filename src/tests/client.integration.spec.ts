@@ -96,7 +96,7 @@ describe('Iracing Api Client', () => {
     it('should retrieve session results', async () => {
       const mockFile = mockReplyPath + 'session-results.json';
       mockNockHelper()
-        .get(/data\/results\/get?\/d+/)
+        .get(/data\/results\/get\?subsession_id=\d+/)
         .replyWithFile(StatusCodes.OK, mockFile);
 
       await mockResouceGet(mockFile);
@@ -108,7 +108,7 @@ describe('Iracing Api Client', () => {
     it('should retrieve event logs', async () => {
       const mockFile = mockReplyPath + 'event-log.json';
       mockNockHelper()
-        .get(/data\/results\/event_log\/[^\/]+$/)
+        .get(/data\/results\/event_log/)
         .query({ subsession_id: 1234, simsession_number: 12344 })
         .replyWithFile(StatusCodes.OK, mockFile);
 
@@ -122,7 +122,7 @@ describe('Iracing Api Client', () => {
       const mockFile = mockReplyPath + 'lap-chart.json';
 
       mockNockHelper()
-        .get(/data\/results\/lap_chart\/[^\/]+$/)
+        .get(/data\/results\/lap_chart_data/)
         .query({ subsession_id: 1234, simsession_number: 123445 })
         .replyWithFile(StatusCodes.OK, mockFile);
 
@@ -132,6 +132,35 @@ describe('Iracing Api Client', () => {
 
       expect(lapChartData.success).toBe(true);
       expect(lapChartData.chunk_info.chunk_size).toBe(500);
+    });
+
+    // New tests for League endpoints
+    it('should retrieve league details', async () => {
+      const mockFile = mockReplyPath + 'league.json';
+      mockNockHelper()
+        .get(/data\/league\/get/)
+        .query({league_id: 1000})
+        .replyWithFile(StatusCodes.OK, mockFile);
+
+      await mockResouceGet(mockFile);
+
+      const leagueData = await client.getLeague(1000);
+
+      expect(leagueData).not.toBeNull();
+      expect(leagueData!.league_id).toBe(1000);
+    });
+
+    it('should retrieve league roster', async () => {
+      const mockFile = mockReplyPath + 'league-roster.json';
+      mockNockHelper()
+        .get('/data/league/roster?league_id=1000')
+        .replyWithFile(StatusCodes.OK, mockFile);
+      await mockResouceGet(mockFile);
+      const leagueRoster = await client.getLeagueRoster(1000);
+      expect(leagueRoster).not.toBeNull();
+      expect(leagueRoster!.roster).toBeDefined();
+      // You can add more assertions based on your league-roster.json fixture
+      expect(leagueRoster!.roster.length).toBeGreaterThan(10);
     });
   });
 });
