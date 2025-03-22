@@ -98,12 +98,12 @@ jobs:
         run: pnpm install
       - name: Build Source
         run: pnpm build
-      - run: pnpm publish
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{secrets.RELEASE_TOKEN}}
           tag_name: ${{ needs.validate-changelog.outputs.new_version }}
           body: ${{ needs.validate-changelog.outputs.changelog }}
+      - run: pnpm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
