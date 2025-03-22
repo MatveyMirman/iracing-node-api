@@ -20,7 +20,7 @@ jobs:
         id: git-cliff
         uses: orhun/git-cliff-action@v4
         with:
-          args: -vv --bump --latest --strip header
+          args: -vv --bump --unreleased --strip header
         env:
           OUTPUT: CHANGELOG.md
           GITHUB_REPO: ${{ github.repository }}
