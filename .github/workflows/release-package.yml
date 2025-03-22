@@ -2,35 +2,81 @@ name: Publish Package
 
 on:
   push:
-      branches:
-        - main
-  release:
-    types: [published]
+    branches:
+      - main
 
 jobs:
+  validate-changelog:
+    runs-on: ubuntu-latest
+    outputs:
+      new_version: ${{ steps.validate.outputs.new_version }}
+      changelog: ${{ steps.git-cliff.outputs.content }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Generate Changelog
+        id: git-cliff
+        uses: orhun/git-cliff-action@v4
+        with:
+          args: -vv --latest --strip header
+        env:
+          OUTPUT: CHANGELOG.md
+          GITHUB_REPO: ${{ github.repository }}
+      - name: Get Latest Tag
+        id: latest_tag
+        run: |
+          latest=$(git tag --sort=-v:refname | head -n 1)
+          echo "Latest tag is: $latest"
+          echo "latest_tag=$latest" >> $GITHUB_OUTPUT
+      - name: Validate Version
+        id: validate
+        run: |
+          new_version="${{ steps.git-cliff.outputs.version }}"
+          latest="${{ steps.latest_tag.outputs.latest_tag }}"
+          echo "New version from git-cliff: $new_version"
+          echo "Latest tag: $latest"
+          # If there's no latest tag, assume new_version is valid.
+          if [ -z "$latest" ]; then
+            echo "No latest tag found. Using new version: $new_version"
+            echo "new_version=$new_version" >> $GITHUB_OUTPUT
+          # If the new version is the same as the latest tag, then no new version is available.
+          elif [ "$new_version" = "$latest" ]; then
+            echo "No new version detected. Skipping subsequent jobs."
+            echo "new_version=" >> $GITHUB_OUTPUT
+          else
+            echo "New version detected: $new_version"
+            echo "new_version=$new_version" >> $GITHUB_OUTPUT
+          fi
+
   build:
+    needs: validate-changelog
+    if: ${{ needs.validate-changelog.outputs.new_version != '' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 'main'
-      - name: 'Install Pnpm'
+          ref: "main"
+
+      - name: "Install Pnpm"
         uses: pnpm/action-setup@v2
         with:
-          version: '9.15'
+          version: "9.15"
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20.x
+
       - name: Install Dependencies
         run: |
           pnpm install
       - run: pnpm test
 
   publish-gpr:
-    needs: build
+    needs: [validate-changelog, build]
+    if: ${{ needs.validate-changelog.outputs.new_version != '' }}
     runs-on: ubuntu-latest
-    outputs:
-      release_body: ${{ steps.git-cliff.outputs.content }}
     permissions:
       contents: read
       packages: write
@@ -38,34 +84,23 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          ref: 'main'
+          ref: "main"
           fetch-depth: 0
-      - name: Generate a changelog
-        uses: orhun/git-cliff-action@v4
-        id: git-cliff
-        with:
-          # config: cliff.toml
-          args: -vv --latest --strip header
-        env:
-          OUTPUT: CHANGELOG.md
-          GITHUB_REPO: ${{ github.repository }}
-      - name: 'Install Pnpm'
+      - name: Install Pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: '9.15'
+          version: "9.15"
       - uses: actions/setup-node@v4
         with:
           node-version: 20.x
-          registry-url: 'https://registry.npmjs.org'
+          registry-url: "https://registry.npmjs.org"
       - name: Install Dependencies
-        run: |
-          pnpm install
+        run: pnpm install
       - name: Build Source
-        run: |
-          pnpm build
-      - name: Create release
+        run: pnpm build
+      - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag_name: ${{ steps.git-cliff.outputs.version }}
-          body: ${{ steps.git-cliff.outputs.content }}
+          tag_name: ${{ needs.validate-changelog.outputs.new_version }}
+          body: ${{ needs.validate-changelog.outputs.changelog }}
